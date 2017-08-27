@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import Vapor
 
 public struct State {
 	
@@ -95,25 +94,4 @@ extension State {
 
 extension State: CustomStringConvertible {
 	public var description: String { return "State" }
-}
-extension State: JSONRepresentable {
-	public func makeJSON() throws -> JSON {
-		var json = JSON()
-		
-		let values: [(String, Any?)] = [
-			("power", powerString),
-			("color", try color?.makeJSON()),
-			("brightness", brightness),
-			("duration", duration)
-		]
-		
-		try values.forEach {
-			guard let value = $0.1 else {
-				return
-			}
-			try json.set($0.0, value)
-		}
-		
-		return json
-	}
 }

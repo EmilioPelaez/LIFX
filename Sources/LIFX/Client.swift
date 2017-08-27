@@ -8,7 +8,7 @@
 
 import Foundation
 import HTTP
-import Vapor
+import JSON
 import JSONClient
 
 public enum Error: Swift.Error {
