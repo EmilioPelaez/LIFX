@@ -10,7 +10,7 @@ import Foundation
 
 public struct LIFXSelector {
 	
-	public struct Selector {
+	public struct Identifier {
 		public enum Category: String {
 			case all
 			case label
@@ -30,34 +30,34 @@ public struct LIFXSelector {
 			return "\(category.rawValue):\(value)"
 		}
 		
-		public static let all = Selector(value: "", category: .all)
+		public static let all = Identifier(value: "", category: .all)
 	}
 	
-	public static let all = LIFXSelector(selector: .all)
+	public static let all = LIFXSelector(identifier: .all)
 	
-	public var selectors = Set<Selector>()
+	public var identifiers = Set<Identifier>()
 	
 	public init() { }
 	
-	fileprivate init(selectors: Set<Selector>) {
-		self.selectors = selectors
+	fileprivate init(identifiers: Set<Identifier>) {
+		self.identifiers = identifiers
 	}
 	
-	public init(value: String, category: Selector.Category) {
-		let selector = Selector(value: value, category: category)
-		self.init(selector: selector)
+	public init(value: String, category: Identifier.Category) {
+		let identifier = Identifier(value: value, category: category)
+		self.init(identifier: identifier)
 	}
 	
-	public init(selector: Selector) {
-		selectors.insert(selector)
+	public init(identifier: Identifier) {
+		identifiers.insert(identifier)
 	}
 	
-	public init(selectors: [Selector]) {
-		self.selectors = Set(selectors)
+	public init(identifier: [Identifier]) {
+		self.identifiers = Set(identifier)
 	}
 	
 	var string: String {
-		return selectors
+		return identifiers
 			.map { $0.string }
 			.joined(separator: ",")
 	}
@@ -65,14 +65,14 @@ public struct LIFXSelector {
 
 extension LIFXSelector {
 	public static func +(lhs: LIFXSelector, rhs: LIFXSelector) -> LIFXSelector {
-		let set = lhs.selectors.union(rhs.selectors)
-		return LIFXSelector(selectors: set)
+		let set = lhs.identifiers.union(rhs.identifiers)
+		return LIFXSelector(identifiers: set)
 	}
 }
 
 extension LIFXSelector: Equatable {
 	public static func ==(lhs: LIFXSelector, rhs: LIFXSelector) -> Bool {
-		return lhs.selectors == rhs.selectors
+		return lhs.identifiers == rhs.identifiers
 	}
 }
 
@@ -80,12 +80,12 @@ extension LIFXSelector: Hashable {
 	public var hashValue: Int { return string.hashValue }
 }
 
-extension LIFXSelector.Selector: Equatable {
-	public static func ==(lhs: LIFXSelector.Selector, rhs: LIFXSelector.Selector) -> Bool {
+extension LIFXSelector.Identifier: Equatable {
+	public static func ==(lhs: LIFXSelector.Identifier, rhs: LIFXSelector.Identifier) -> Bool {
 		return lhs.string == rhs.string
 	}
 }
 
-extension LIFXSelector.Selector: Hashable {
+extension LIFXSelector.Identifier: Hashable {
 	public var hashValue: Int { return string.hashValue }
 }
