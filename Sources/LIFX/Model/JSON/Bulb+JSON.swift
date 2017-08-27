@@ -16,7 +16,6 @@ extension Bulb: JSONInitializable {
 			let power = json["power"]?.string, (power == "on" || power == "off"),
 			let connected = json["connected"]?.bool
 			else {
-				print("Can't create bulb", json)
 				throw LIFX.Error.invalidJson(json)
 		}
 		
