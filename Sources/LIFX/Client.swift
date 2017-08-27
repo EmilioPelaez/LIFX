@@ -143,15 +143,15 @@ extension Client {
 	
 	fileprivate func validateJson(_ json: JSON, contentKey key: String?) throws -> [JSON] {
 		let jsonContent: JSON = {
-			if let key = key {
-				return json[key]!
+			if let key = key, let content = json[key] {
+				return content
 			} else {
 				return json
 			}
 		}()
 		
 		guard let object = jsonContent.array else {
-			if let error = json[APIKey.error]!.string {
+			if let error = json[APIKey.error]?.string {
 				throw LIFX.Error.apiError(error)
 			} else {
 				throw LIFX.Error.invalidJson(json)
