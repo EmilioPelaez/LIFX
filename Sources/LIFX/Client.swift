@@ -27,7 +27,7 @@ open class Client: JSONClient {
 	
 	open override func headers() -> [HeaderKey : String] {
 		var headers = super.headers()
-		headers["Authorization"] = "Bearer \(token)"
+		headers[.authorization] = "Bearer \(token)"
 		return headers
 	}
 	
@@ -41,7 +41,7 @@ open class Client: JSONClient {
 		guard let body = state.makeDictionary() as? [String: CustomStringConvertible] else {
 			fatalError("Invalid parameters \(state.makeDictionary())")
 		}
-		return try performAndHandleRequest(method: .put, pathComponents: [selector.string, "state"], body: body, contentKey: "results")
+		return try performAndHandleRequest(method: .put, pathComponents: [selector.string, "state"], body: body, contentKey: APIKey.results)
 	}
 	
 	@discardableResult
@@ -52,15 +52,15 @@ open class Client: JSONClient {
 		
 		let operationsBody: [[String: Any]] = operations.map { selector, state in
 			var dictionary = state.makeDictionary()
-			dictionary["selector"] = selector.string
+			dictionary[APIKey.selector] = selector.string
 			return dictionary
 		}
-		var body: [String: Any] = ["states": operationsBody]
+		var body: [String: Any] = [APIKey.states: operationsBody]
 		if let defaults = defaults {
-			body["defaults"] = defaults.makeDictionary()
+			body[APIKey.defaults] = defaults.makeDictionary()
 		}
 		
-		return try performAndHandleRequest(method: .put, pathComponents: ["states"], body: body, contentKey: "results")
+		return try performAndHandleRequest(method: .put, pathComponents: ["states"], body: body, contentKey: APIKey.results)
 	}
 	
 	@discardableResult
@@ -70,38 +70,38 @@ open class Client: JSONClient {
 		}
 		
 		let statesValues = states.map { $0.makeDictionary() }
-		var body: [String: Any] = ["states": statesValues]
+		var body: [String: Any] = [APIKey.states: statesValues]
 		if let defaults = defaults {
-			body["defaults"] = defaults.makeDictionary()
+			body[APIKey.defaults] = defaults.makeDictionary()
 		}
 		
-		return try performAndHandleRequest(method: .post, pathComponents: [selector.string, "cycle"], body: body, contentKey: "results")
+		return try performAndHandleRequest(method: .post, pathComponents: [selector.string, "cycle"], body: body, contentKey: APIKey.results)
 	}
 	
 	@discardableResult
 	open func pulse(selector: Selector = .all, color: Color, period: Double = 0.75, cycles: Double = 3) throws -> [Result] {
 		let body: [String: Any] = [
-			"color": color.string,
-			"period": period,
-			"cycles": cycles,
-			"power_on": false
+			APIKey.color: color.string,
+			APIKey.period: period,
+			APIKey.cycles: cycles,
+			APIKey.powerOn: false
 		]
 		
-		return try performAndHandleRequest(method: .post, pathComponents: [selector.string, "effects", "pulse"], body: body, contentKey: "results")
+		return try performAndHandleRequest(method: .post, pathComponents: [selector.string, "effects", "pulse"], body: body, contentKey: APIKey.results)
 	}
 	
 	@discardableResult
 	open func breathe(selector: Selector = .all, color: Color, period: Double = 0.75, cycles: Double = 3, persist: Bool = false, powerOn: Bool = true, peak: Double = 0.5) throws -> [Result] {
 		let body: [String: Any] = [
-			"color": color.string,
-			"period": period,
-			"cycles": cycles,
-			"persist": persist,
-			"power_on": powerOn,
-			"peak": peak
+			APIKey.color: color.string,
+			APIKey.period: period,
+			APIKey.cycles: cycles,
+			APIKey.persist: persist,
+			APIKey.powerOn: powerOn,
+			APIKey.peak: peak
 		]
 		
-		return try performAndHandleRequest(method: .post, pathComponents: [selector.string, "effects", "pulse"], body: body, contentKey: "results")
+		return try performAndHandleRequest(method: .post, pathComponents: [selector.string, "effects", "pulse"], body: body, contentKey: APIKey.results)
 	}
 }
 
@@ -151,7 +151,7 @@ extension Client {
 		}()
 		
 		guard let object = jsonContent.array else {
-			if let error = json["error"]!.string {
+			if let error = json[APIKey.error]!.string {
 				throw LIFX.Error.apiError(error)
 			} else {
 				throw LIFX.Error.invalidJson(json)
