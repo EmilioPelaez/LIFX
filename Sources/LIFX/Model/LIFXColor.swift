@@ -8,13 +8,13 @@
 
 import Foundation
 
-struct LIFXColor {
-	var hue: Int?						{ didSet { validate() } }
-	var saturation: Double?	{ didSet { validate() } }
-	var brightness: Double?	{ didSet { validate() } }
-	var kelvin: Int?				{ didSet { validate() } }
+public struct LIFXColor {
+	public var hue: Int?						{ didSet { validate() } }
+	public var saturation: Double?	{ didSet { validate() } }
+	public var brightness: Double?	{ didSet { validate() } }
+	public var kelvin: Int?				{ didSet { validate() } }
 	
-	init(hue: Int? = nil, saturation: Double? = nil, brightness: Double? = nil, kelvin: Int? = nil) {
+	public init(hue: Int? = nil, saturation: Double? = nil, brightness: Double? = nil, kelvin: Int? = nil) {
 		self.hue = hue
 		self.saturation = saturation
 		self.brightness = brightness
@@ -23,7 +23,7 @@ struct LIFXColor {
 		validate()
 	}
 	
-	mutating func validate() {
+	private mutating func validate() {
 		if var hue = hue {
 			while hue < 0 { hue += 360 }
 			let target = hue % 360
@@ -55,5 +55,5 @@ struct LIFXColor {
 }
 
 extension LIFXColor: CustomStringConvertible {
-	var description: String { return "LIFXColor " + string }
+	public var description: String { return "LIFXColor " + string }
 }

@@ -9,26 +9,26 @@
 import Foundation
 import Vapor
 
-struct LIFXState {
+public struct LIFXState {
 	
-	static let empty = LIFXState()
-	static let on = LIFXState(powered: true)
-	static let off = LIFXState(powered: false)
+	public static let empty = LIFXState()
+	public static let on = LIFXState(powered: true)
+	public static let off = LIFXState(powered: false)
 	
 	internal var powerString: String? {
 		guard let powered = powered else { return nil }
 		return powered ? "on" : "off"
 	}
-	var powered: Bool?
-	var color: LIFXColor?
-	var brightness: Double? {
+	public var powered: Bool?
+	public var color: LIFXColor?
+	public var brightness: Double? {
 		didSet {
 			if let brightness = brightness {
 				self.brightness = max(0, min(1, brightness))
 			}
 		}
 	}
-	var duration: Double? {
+	public var duration: Double? {
 		didSet {
 			if let duration = duration {
 				self.duration = max(0, min(3155760000, duration))
@@ -36,7 +36,7 @@ struct LIFXState {
 		}
 	}
 	
-	init(powered: Bool? = nil, color: LIFXColor? = nil, brightness: Double? = nil, duration: Double? = nil) {
+	public init(powered: Bool? = nil, color: LIFXColor? = nil, brightness: Double? = nil, duration: Double? = nil) {
 		self.powered = powered
 		self.color = color
 		if let brightness = brightness {
@@ -50,24 +50,24 @@ struct LIFXState {
 
 extension LIFXState {
 	
-	static func fade(duration: TimeInterval = 5) -> LIFXState {
+	public static func fade(duration: TimeInterval = 5) -> LIFXState {
 		return LIFXState(duration: duration)
 	}
 	
-	mutating func addValues(from state: LIFXState) {
+	public mutating func addValues(from state: LIFXState) {
 		if powered == nil { powered = state.powered }
 		if color == nil { color = state.color }
 		if brightness == nil { brightness = state.brightness }
 		if duration == nil { duration = state.duration }
 	}
 	
-	static func +(lhs: LIFXState, rhs: LIFXState) -> LIFXState {
+	public static func +(lhs: LIFXState, rhs: LIFXState) -> LIFXState {
 		var result = lhs
 		result.addValues(from: rhs)
 		return result
 	}
 	
-	static func +(lhs: LIFXState, rhs: LIFXColor) -> LIFXState {
+	public static func +(lhs: LIFXState, rhs: LIFXColor) -> LIFXState {
 		var result = lhs
 		result.addValues(from: LIFXState(color: rhs))
 		return result
@@ -75,10 +75,10 @@ extension LIFXState {
 }
 
 extension LIFXState: CustomStringConvertible {
-	var description: String { return "LIFXState" }
+	public var description: String { return "LIFXState" }
 }
 extension LIFXState: JSONRepresentable {
-	func makeJSON() throws -> JSON {
+	public func makeJSON() throws -> JSON {
 		var json = JSON()
 		
 		let values: [(String, Any?)] = [

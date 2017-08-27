@@ -11,7 +11,7 @@ import HTTP
 import Vapor
 import JSONClient
 
-enum LIFXError: Error {
+public enum Error: Swift.Error {
 	case invalidJson(JSON)
 	case invalidParameter(String)
 	case apiError(String)
@@ -22,28 +22,28 @@ extension String {
 	static let lifxEndpoint = "https://api.lifx.com/v1/lights"
 }
 
-class LIFXClient: JSONClient {
+open class LIFXClient: JSONClient {
 	
-	let token: String
+	public let token: String
 	
-	init(token: String, client: Responder) {
+	public init(token: String, client: Responder) {
 		self.token = token
 		super.init(baseUrl: .lifxEndpoint, client: client)
 	}
 	
-	override func headers() -> [HTTP.HeaderKey : String] {
+	open override func headers() -> [HeaderKey : String] {
 		var headers = super.headers()
 		headers["Authorization"] = "Bearer \(token)"
 		return headers
 	}
 	
 	@discardableResult
-	func list(selector: LIFXSelector = .all) throws -> [LIFXBulb] {
+	open func list(selector: LIFXSelector = .all) throws -> [LIFXBulb] {
 		return try performAndHandleRequest(pathComponents: [selector.string], contentKey: nil)
 	}
 	
 	@discardableResult
-	func setState(selector: LIFXSelector = .all, state: LIFXState) throws -> [LIFXResult] {
+	open func setState(selector: LIFXSelector = .all, state: LIFXState) throws -> [LIFXResult] {
 		let encoder = LIFXStateEncoder(state: state)
 		guard let body = encoder.getJSONValues() as? [String: CustomStringConvertible] else {
 			fatalError("Invalid parameters \(encoder.getJSONValues())")
@@ -52,9 +52,9 @@ class LIFXClient: JSONClient {
 	}
 	
 	@discardableResult
-	func setStates(operations: [(selector: LIFXSelector, state: LIFXState)], defaults: LIFXState? = nil) throws -> [LIFXOperationResult] {
+	open func setStates(operations: [(selector: LIFXSelector, state: LIFXState)], defaults: LIFXState? = nil) throws -> [LIFXOperationResult] {
 		guard operations.count > 0 else {
-			throw LIFXError.invalidParameter("operations")
+			throw LIFX.Error.invalidParameter("operations")
 		}
 		
 		let operationsBody: [[String: Any]] = operations.map { selector, state in
@@ -71,9 +71,9 @@ class LIFXClient: JSONClient {
 	}
 	
 	@discardableResult
-	func cycle(selector: LIFXSelector = .all, states: [LIFXState], defaults: LIFXState? = nil) throws -> [LIFXResult] {
+	open func cycle(selector: LIFXSelector = .all, states: [LIFXState], defaults: LIFXState? = nil) throws -> [LIFXResult] {
 		guard states.count > 0 else {
-			throw LIFXError.invalidParameter("states")
+			throw LIFX.Error.invalidParameter("states")
 		}
 		
 		let statesValues = states.map { $0.encoded().getJSONValues() }
@@ -86,7 +86,7 @@ class LIFXClient: JSONClient {
 	}
 	
 	@discardableResult
-	func pulse(selector: LIFXSelector = .all, color: LIFXColor, period: Double = 0.75, cycles: Double = 3) throws -> [LIFXResult] {
+	open func pulse(selector: LIFXSelector = .all, color: LIFXColor, period: Double = 0.75, cycles: Double = 3) throws -> [LIFXResult] {
 		let body: [String: Any] = [
 			"color": color.string,
 			"period": period,
@@ -98,7 +98,7 @@ class LIFXClient: JSONClient {
 	}
 	
 	@discardableResult
-	func breathe(selector: LIFXSelector = .all, color: LIFXColor, period: Double = 0.75, cycles: Double = 3, persist: Bool = false, powerOn: Bool = true, peak: Double = 0.5) throws -> [LIFXResult] {
+	open func breathe(selector: LIFXSelector = .all, color: LIFXColor, period: Double = 0.75, cycles: Double = 3, persist: Bool = false, powerOn: Bool = true, peak: Double = 0.5) throws -> [LIFXResult] {
 		let body: [String: Any] = [
 			"color": color.string,
 			"period": period,
@@ -159,9 +159,9 @@ extension LIFXClient {
 		
 		guard let object = jsonContent.array else {
 			if let error = json["error"]!.string {
-				throw LIFXError.apiError(error)
+				throw LIFX.Error.apiError(error)
 			} else {
-				throw LIFXError.invalidJson(json)
+				throw LIFX.Error.invalidJson(json)
 			}
 		}
 		return object
