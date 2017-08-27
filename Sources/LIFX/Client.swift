@@ -11,13 +11,6 @@ import HTTP
 import JSON
 import JSONClient
 
-public enum Error: Swift.Error {
-	case invalidJson(JSON)
-	case invalidParameter(String)
-	case apiError(String)
-	case unknown
-}
-
 extension String {
 	static let lifxEndpoint = "https://api.lifx.com/v1/lights"
 }
@@ -53,7 +46,7 @@ open class Client: JSONClient {
 	@discardableResult
 	open func setStates(operations: [(selector: Selector, state: State)], defaults: State? = nil) throws -> [OperationResult] {
 		guard operations.count > 0 else {
-			throw LIFX.Error.invalidParameter("operations")
+			throw LIFX.Error.invalidParameter("Empty operations array")
 		}
 		
 		let operationsBody: [[String: Any]] = operations.map { selector, state in
@@ -72,7 +65,7 @@ open class Client: JSONClient {
 	@discardableResult
 	open func cycle(selector: Selector = .all, states: [State], defaults: State? = nil) throws -> [Result] {
 		guard states.count > 0 else {
-			throw LIFX.Error.invalidParameter("states")
+			throw LIFX.Error.invalidParameter("Empty states array")
 		}
 		
 		let statesValues = states.map { $0.makeDictionary() }
