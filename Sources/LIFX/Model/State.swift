@@ -73,10 +73,10 @@ extension State {
 	}
 	
 	public mutating func addValues(from state: State) {
-		if powered == nil { powered = state.powered }
-		if color == nil { color = state.color }
-		if brightness == nil { brightness = state.brightness }
-		if duration == nil { duration = state.duration }
+		powered = state.powered ?? powered
+		color = state.color ?? color
+		brightness = state.brightness ?? brightness
+		duration = state.duration ?? duration
 	}
 	
 	public static func +(lhs: State, rhs: State) -> State {
