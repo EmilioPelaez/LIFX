@@ -17,6 +17,7 @@ extension String {
 
 open class Client: JSONClient {
 	
+	//	You can learn more about generating the token here https://api.developer.lifx.com/docs/authentication
 	public let token: String
 	
 	public init(token: String, client: Responder) {
