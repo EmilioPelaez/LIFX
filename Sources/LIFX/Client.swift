@@ -44,9 +44,8 @@ open class Client: JSONClient {
 	
 	@discardableResult
 	open func setState(selector: Selector = .all, state: State) throws -> [Result] {
-		let encoder = StateEncoder(state: state)
-		guard let body = encoder.getJSONValues() as? [String: CustomStringConvertible] else {
-			fatalError("Invalid parameters \(encoder.getJSONValues())")
+		guard let body = state.makeDictionary() as? [String: CustomStringConvertible] else {
+			fatalError("Invalid parameters \(state.makeDictionary())")
 		}
 		return try performAndHandleRequest(method: .put, pathComponents: [selector.string, "state"], body: body, contentKey: "results")
 	}
@@ -58,13 +57,13 @@ open class Client: JSONClient {
 		}
 		
 		let operationsBody: [[String: Any]] = operations.map { selector, state in
-			var dictionary = state.encoded().getJSONValues()
+			var dictionary = state.makeDictionary()
 			dictionary["selector"] = selector.string
 			return dictionary
 		}
 		var body: [String: Any] = ["states": operationsBody]
 		if let defaults = defaults {
-			body["defaults"] = defaults.encoded().getJSONValues()
+			body["defaults"] = defaults.makeDictionary()
 		}
 		
 		return try performAndHandleRequest(method: .put, pathComponents: ["states"], body: body, contentKey: "results")
@@ -76,10 +75,10 @@ open class Client: JSONClient {
 			throw LIFX.Error.invalidParameter("states")
 		}
 		
-		let statesValues = states.map { $0.encoded().getJSONValues() }
+		let statesValues = states.map { $0.makeDictionary() }
 		var body: [String: Any] = ["states": statesValues]
 		if let defaults = defaults {
-			body["defaults"] = defaults.encoded().getJSONValues()
+			body["defaults"] = defaults.makeDictionary()
 		}
 		
 		return try performAndHandleRequest(method: .post, pathComponents: [selector.string, "cycle"], body: body, contentKey: "results")

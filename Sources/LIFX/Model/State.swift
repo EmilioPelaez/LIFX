@@ -46,6 +46,25 @@ public struct State {
 			self.duration = max(0, min(3155760000, duration))
 		}
 	}
+	
+	func makeDictionary() -> [String: Any] {
+		var values = [String: Any]()
+		
+		if let power = powerString {
+			values["power"] = power
+		}
+		if let color = color?.string {
+			values["color"] = color
+		}
+		if let brightness = brightness {
+			values["brightness"] = brightness
+		}
+		if let duration = duration {
+			values["duration"] = duration
+		}
+		
+		return values
+	}
 }
 
 extension State {
@@ -97,43 +116,4 @@ extension State: JSONRepresentable {
 		
 		return json
 	}
-}
-
-
-extension State {
-	func encoded() -> StateEncoder {
-		return StateEncoder(state: self)
-	}
-}
-
-class StateEncoder {
-	var state: State
-	
-	init() {
-		state = State()
-	}
-	
-	init(state: State) {
-		self.state = state
-	}
-	
-	func getJSONValues() -> [String : Any] {
-		var values = [String: Any]()
-		
-		if let power = state.powerString {
-			values["power"] = power
-		}
-		if let color = state.color?.string {
-			values["color"] = color
-		}
-		if let brightness = state.brightness {
-			values["brightness"] = brightness
-		}
-		if let duration = state.duration {
-			values["duration"] = duration
-		}
-		
-		return values
-	}
-	
 }
