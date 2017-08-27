@@ -1,5 +1,5 @@
 //
-//  LIFXSelector.swift
+//  Selector.swift
 //  LIFX
 //
 //  Created by Emilio Peláez on 12/24/16.
@@ -8,7 +8,7 @@
 
 import Foundation
 
-public struct LIFXSelector {
+public struct Selector {
 	
 	public struct Identifier {
 		public enum Category: String {
@@ -33,7 +33,7 @@ public struct LIFXSelector {
 		public static let all = Identifier(value: "", category: .all)
 	}
 	
-	public static let all = LIFXSelector(identifier: .all)
+	public static let all = Selector(identifier: .all)
 	
 	public var identifiers = Set<Identifier>()
 	
@@ -63,29 +63,29 @@ public struct LIFXSelector {
 	}
 }
 
-extension LIFXSelector {
-	public static func +(lhs: LIFXSelector, rhs: LIFXSelector) -> LIFXSelector {
+extension Selector {
+	public static func +(lhs: Selector, rhs: Selector) -> Selector {
 		let set = lhs.identifiers.union(rhs.identifiers)
-		return LIFXSelector(identifiers: set)
+		return Selector(identifiers: set)
 	}
 }
 
-extension LIFXSelector: Equatable {
-	public static func ==(lhs: LIFXSelector, rhs: LIFXSelector) -> Bool {
+extension Selector: Equatable {
+	public static func ==(lhs: Selector, rhs: Selector) -> Bool {
 		return lhs.identifiers == rhs.identifiers
 	}
 }
 
-extension LIFXSelector: Hashable {
+extension Selector: Hashable {
 	public var hashValue: Int { return string.hashValue }
 }
 
-extension LIFXSelector.Identifier: Equatable {
-	public static func ==(lhs: LIFXSelector.Identifier, rhs: LIFXSelector.Identifier) -> Bool {
+extension Selector.Identifier: Equatable {
+	public static func ==(lhs: Selector.Identifier, rhs: Selector.Identifier) -> Bool {
 		return lhs.string == rhs.string
 	}
 }
 
-extension LIFXSelector.Identifier: Hashable {
+extension Selector.Identifier: Hashable {
 	public var hashValue: Int { return string.hashValue }
 }

@@ -1,5 +1,5 @@
 //
-//  LIFXClient.swift
+//  Client.swift
 //  LIFX
 //
 //  Created by Emilio Peláez on 12/18/16.
@@ -22,7 +22,7 @@ extension String {
 	static let lifxEndpoint = "https://api.lifx.com/v1/lights"
 }
 
-open class LIFXClient: JSONClient {
+open class Client: JSONClient {
 	
 	public let token: String
 	
@@ -38,13 +38,13 @@ open class LIFXClient: JSONClient {
 	}
 	
 	@discardableResult
-	open func list(selector: LIFXSelector = .all) throws -> [LIFXBulb] {
+	open func list(selector: Selector = .all) throws -> [Bulb] {
 		return try performAndHandleRequest(pathComponents: [selector.string], contentKey: nil)
 	}
 	
 	@discardableResult
-	open func setState(selector: LIFXSelector = .all, state: LIFXState) throws -> [LIFXResult] {
-		let encoder = LIFXStateEncoder(state: state)
+	open func setState(selector: Selector = .all, state: State) throws -> [Result] {
+		let encoder = StateEncoder(state: state)
 		guard let body = encoder.getJSONValues() as? [String: CustomStringConvertible] else {
 			fatalError("Invalid parameters \(encoder.getJSONValues())")
 		}
@@ -52,7 +52,7 @@ open class LIFXClient: JSONClient {
 	}
 	
 	@discardableResult
-	open func setStates(operations: [(selector: LIFXSelector, state: LIFXState)], defaults: LIFXState? = nil) throws -> [LIFXOperationResult] {
+	open func setStates(operations: [(selector: Selector, state: State)], defaults: State? = nil) throws -> [OperationResult] {
 		guard operations.count > 0 else {
 			throw LIFX.Error.invalidParameter("operations")
 		}
@@ -71,7 +71,7 @@ open class LIFXClient: JSONClient {
 	}
 	
 	@discardableResult
-	open func cycle(selector: LIFXSelector = .all, states: [LIFXState], defaults: LIFXState? = nil) throws -> [LIFXResult] {
+	open func cycle(selector: Selector = .all, states: [State], defaults: State? = nil) throws -> [Result] {
 		guard states.count > 0 else {
 			throw LIFX.Error.invalidParameter("states")
 		}
@@ -86,7 +86,7 @@ open class LIFXClient: JSONClient {
 	}
 	
 	@discardableResult
-	open func pulse(selector: LIFXSelector = .all, color: LIFXColor, period: Double = 0.75, cycles: Double = 3) throws -> [LIFXResult] {
+	open func pulse(selector: Selector = .all, color: Color, period: Double = 0.75, cycles: Double = 3) throws -> [Result] {
 		let body: [String: Any] = [
 			"color": color.string,
 			"period": period,
@@ -98,7 +98,7 @@ open class LIFXClient: JSONClient {
 	}
 	
 	@discardableResult
-	open func breathe(selector: LIFXSelector = .all, color: LIFXColor, period: Double = 0.75, cycles: Double = 3, persist: Bool = false, powerOn: Bool = true, peak: Double = 0.5) throws -> [LIFXResult] {
+	open func breathe(selector: Selector = .all, color: Color, period: Double = 0.75, cycles: Double = 3, persist: Bool = false, powerOn: Bool = true, peak: Double = 0.5) throws -> [Result] {
 		let body: [String: Any] = [
 			"color": color.string,
 			"period": period,
@@ -112,7 +112,7 @@ open class LIFXClient: JSONClient {
 	}
 }
 
-extension LIFXClient {
+extension Client {
 	@discardableResult
 	fileprivate func performAndHandleRequest<T: JSONInitializable>(method: HTTP.Method = .get, pathComponents components: [String], query: [String: CustomStringConvertible] = [:], body: [String: Any]? = nil, contentKey key: String?) throws -> [T] {
 		

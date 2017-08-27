@@ -9,7 +9,7 @@
 import Foundation
 import Vapor
 
-extension LIFXBulb: JSONInitializable {
+extension Bulb: JSONInitializable {
 	public init(json: JSON) throws {
 		guard let id = json["id"]?.string,
 			let name = json["label"]?.string,
@@ -24,11 +24,11 @@ extension LIFXBulb: JSONInitializable {
 		self.name = name
 		self.powered = power == "on"
 		self.connected = connected
-		self.color = try LIFXColor(json: json)
+		self.color = try Color(json: json)
 	}
 }
 
-extension LIFXBulb: JSONRepresentable {
+extension Bulb: JSONRepresentable {
 	public func makeJSON() throws -> JSON {
 		var json = JSON()
 		
@@ -44,9 +44,9 @@ extension LIFXBulb: JSONRepresentable {
 	}
 }
 
-extension LIFXBulb: JSONConvertible {}
+extension Bulb: JSONConvertible {}
 
-extension LIFXColor: JSONInitializable {
+extension Color: JSONInitializable {
 	public init(json: JSON) throws {
 		self.hue = json["hue"]?.int ?? json["color", "hue"]?.int
 		self.saturation = json["saturation"]?.double ?? json["color", "saturation"]?.double
@@ -55,7 +55,7 @@ extension LIFXColor: JSONInitializable {
 	}
 }
 
-extension LIFXColor {
+extension Color {
 	init(string: String) throws {
 		guard !string.isEmpty else {
 			throw LIFX.Error.invalidParameter("Empty String")
@@ -76,7 +76,7 @@ extension LIFXColor {
 	}
 }
 
-extension LIFXColor: JSONRepresentable {
+extension Color: JSONRepresentable {
 	public func makeJSON() throws -> JSON {
 		var json = JSON()
 		
@@ -98,9 +98,9 @@ extension LIFXColor: JSONRepresentable {
 	}
 }
 
-extension LIFXColor: JSONConvertible { }
+extension Color: JSONConvertible { }
 
-extension LIFXResult: JSONInitializable {
+extension Result: JSONInitializable {
 	public init(json: JSON) throws {
 		self.id = json["id"]?.string ?? "????????????"
 		self.label = json["label"]?.string ?? "Unknown"
@@ -108,25 +108,25 @@ extension LIFXResult: JSONInitializable {
 	}
 }
 
-extension LIFXOperationResult: JSONInitializable {
+extension OperationResult: JSONInitializable {
 	public init(json: JSON) throws {
 		let results = json["results"]?.array ?? []
 		let operation = json["operation"] ?? JSON()
 		
 		self.selectorString = operation["selector"]?.string ?? "Unknown Selector"
-		self.state = try LIFXState(json: operation) 
-		self.results = try results.flatMap(LIFXResult.init)
+		self.state = try State(json: operation) 
+		self.results = try results.flatMap(Result.init)
 	}
 }
 
-extension LIFXState: JSONInitializable {
+extension State: JSONInitializable {
 	public init(json: JSON) throws {
 		if let powerString = json["power"]?.string {
 			self.powered = powerString == "on"
 		} else {
 			self.powered = nil
 		}
-		if let color = try? LIFXColor(string: json["color"]?.string ?? "") {
+		if let color = try? Color(string: json["color"]?.string ?? "") {
 			self.color = color
 		} else {
 			self.color = nil

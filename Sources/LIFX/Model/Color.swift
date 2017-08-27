@@ -1,5 +1,5 @@
 //
-//  LIFXColor.swift
+//  Color.swift
 //  LIFX
 //
 //  Created by Emilio Peláez on 12/24/16.
@@ -8,7 +8,7 @@
 
 import Foundation
 
-public struct LIFXColor {
+public struct Color {
 	public var hue: Int?						{ didSet { validate() } }
 	public var saturation: Double?	{ didSet { validate() } }
 	public var brightness: Double?	{ didSet { validate() } }
@@ -54,6 +54,6 @@ public struct LIFXColor {
 	}
 }
 
-extension LIFXColor: CustomStringConvertible {
-	public var description: String { return "LIFXColor " + string }
+extension Color: CustomStringConvertible {
+	public var description: String { return "Color " + string }
 }
