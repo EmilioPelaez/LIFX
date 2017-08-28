@@ -47,7 +47,7 @@ open class Client: JSONClient {
 	@discardableResult
 	open func setStates(operations: [(selector: Selector, state: State)], defaults: State? = nil) throws -> [OperationResult] {
 		guard operations.count > 0 else {
-			throw LIFX.Error.invalidParameter("Empty operations array")
+			throw LIFXError.invalidParameter("Empty operations array")
 		}
 		
 		let operationsBody: [[String: Any]] = operations.map { selector, state in
@@ -66,7 +66,7 @@ open class Client: JSONClient {
 	@discardableResult
 	open func cycle(selector: Selector = .all, states: [State], defaults: State? = nil) throws -> [Result] {
 		guard states.count > 0 else {
-			throw LIFX.Error.invalidParameter("Empty states array")
+			throw LIFXError.invalidParameter("Empty states array")
 		}
 		
 		let statesValues = states.map { $0.makeDictionary() }
@@ -152,9 +152,9 @@ extension Client {
 		
 		guard let object = jsonContent.array else {
 			if let error = json[APIKey.error]?.string {
-				throw LIFX.Error.apiError(error)
+				throw LIFXError.apiError(error)
 			} else {
-				throw LIFX.Error.invalidJson(json)
+				throw LIFXError.invalidJson(json)
 			}
 		}
 		return object

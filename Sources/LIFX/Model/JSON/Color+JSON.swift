@@ -21,7 +21,7 @@ extension Color: JSONInitializable {
 extension Color {
 	init(string: String) throws {
 		guard !string.isEmpty else {
-			throw LIFX.Error.invalidParameter("Empty string")
+			throw LIFXError.invalidParameter("Empty string")
 		}
 		//	String is in format "property:value property:value, this converts it to format
 		//	{"property":value,"property":value}, then it's converted to data and initialized
@@ -32,7 +32,7 @@ extension Color {
 			.joined(separator: ",")
 		let jsonString = "{" + body + "}"
 		guard let data = jsonString.data(using: .utf8) else {
-			throw LIFX.Error.invalidParameter("Empty string")
+			throw LIFXError.invalidParameter("Empty string")
 		}
 		let json: JSON = try JSON(bytes: data.makeBytes())
 		try self.init(json: json)
