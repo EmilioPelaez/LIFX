@@ -36,7 +36,7 @@ extension Bulb: JSONRepresentable {
 		try json.set("power", powered ? "on" : "off")
 		try json.set("connected", connected)
 		if let color = color {
-			try json.set("color", color)
+			try json.set("color", color.makeJSON())
 		}
 		
 		return json
