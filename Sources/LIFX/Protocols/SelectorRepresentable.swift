@@ -8,10 +8,10 @@
 
 import Foundation
 
-protocol SelectorRepresentable {
+public protocol SelectorRepresentable {
 	var selector: Selector { get }
 }
 
 extension Selector: SelectorRepresentable {
-	var selector: Selector { return self }
+	public var selector: Selector { return self }
 }

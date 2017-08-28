@@ -9,11 +9,11 @@
 import Foundation
 
 public struct Bulb {
-	let id: String
-	let name: String
-	let powered: Bool
-	let connected: Bool
-	let color: Color?
+	public let id: String
+	public let name: String
+	public let powered: Bool
+	public let connected: Bool
+	public let color: Color?
 }
 
 extension Bulb: CustomStringConvertible {
