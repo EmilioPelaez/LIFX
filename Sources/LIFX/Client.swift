@@ -124,7 +124,7 @@ extension Client {
 			}
 		}()
 		
-		let result = try performRequest(method: method, pathComponents: components, query: query, body: requestBody)
+		let result = try performRequest(method: method, path: components, query: query, body: requestBody)
 		return try self.handleRequestResult(result, contentKey: key)
 	}
 	
