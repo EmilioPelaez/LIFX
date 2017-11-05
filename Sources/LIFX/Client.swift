@@ -16,7 +16,6 @@ extension String {
 }
 
 open class Client: JSONClient {
-	
 	//	You can learn more about generating the token here https://api.developer.lifx.com/docs/authentication
 	public let token: String
 	
@@ -33,7 +32,7 @@ open class Client: JSONClient {
 	
 	@discardableResult
 	open func list(selector: Selector = .all) throws -> [Bulb] {
-		return try performAndHandleRequest(pathComponents: [selector.string], contentKey: nil)
+		return try performAndHandleRequest(pathComponents: [selector.string], unwrapResults: false)
 	}
 	
 	@discardableResult
@@ -41,7 +40,7 @@ open class Client: JSONClient {
 		guard let body = state.makeDictionary() as? [String: CustomStringConvertible] else {
 			fatalError("Invalid parameters \(state.makeDictionary())")
 		}
-		return try performAndHandleRequest(method: .put, pathComponents: [selector.string, "state"], body: body, contentKey: APIKey.results)
+		return try performAndHandleRequest(method: .put, pathComponents: [selector.string, "state"], body: body, unwrapResults: true)
 	}
 	
 	@discardableResult
@@ -60,7 +59,7 @@ open class Client: JSONClient {
 			body[APIKey.defaults] = defaults.makeDictionary()
 		}
 		
-		return try performAndHandleRequest(method: .put, pathComponents: ["states"], body: body, contentKey: APIKey.results)
+		return try performAndHandleRequest(method: .put, pathComponents: ["states"], body: body, unwrapResults: true)
 	}
 	
 	@discardableResult
@@ -75,7 +74,7 @@ open class Client: JSONClient {
 			body[APIKey.defaults] = defaults.makeDictionary()
 		}
 		
-		return try performAndHandleRequest(method: .post, pathComponents: [selector.string, "cycle"], body: body, contentKey: APIKey.results)
+		return try performAndHandleRequest(method: .post, pathComponents: [selector.string, "cycle"], body: body, unwrapResults: true)
 	}
 	
 	@discardableResult
@@ -87,7 +86,7 @@ open class Client: JSONClient {
 			APIKey.powerOn: false
 		]
 		
-		return try performAndHandleRequest(method: .post, pathComponents: [selector.string, "effects", "pulse"], body: body, contentKey: APIKey.results)
+		return try performAndHandleRequest(method: .post, pathComponents: [selector.string, "effects", "pulse"], body: body, unwrapResults: true)
 	}
 	
 	@discardableResult
@@ -101,16 +100,15 @@ open class Client: JSONClient {
 			APIKey.peak: peak
 		]
 		
-		return try performAndHandleRequest(method: .post, pathComponents: [selector.string, "effects", "pulse"], body: body, contentKey: APIKey.results)
+		return try performAndHandleRequest(method: .post, pathComponents: [selector.string, "effects", "pulse"], body: body, unwrapResults: true)
 	}
 }
 
 extension Client {
 	@discardableResult
-	fileprivate func performAndHandleRequest<T: JSONInitializable>(method: HTTP.Method = .get, pathComponents components: [String], query: [String: CustomStringConvertible] = [:], body: [String: Any]? = nil, contentKey key: String?) throws -> [T] {
+	fileprivate func performAndHandleRequest<T: Decodable>(method: HTTP.Method = .get, pathComponents components: [String], query: [String: CustomStringConvertible] = [:], body: [String: Any]? = nil, unwrapResults: Bool) throws -> [T] {
 		
 		let requestBody: ContentBody = try {
-			
 			if let body = body {
 				var json = JSON()
 				
@@ -124,39 +122,17 @@ extension Client {
 			}
 		}()
 		
-		let result = try performRequest(method: method, path: components, query: query, body: requestBody)
-		return try self.handleRequestResult(result, contentKey: key)
-	}
-	
-	//	Receives a request result, validates it and calls the completion handler with a a result with 
-	//	either an error or an array of objects of type T, where T is infered from the completion handler
-	fileprivate func handleRequestResult<T: JSONInitializable>(_ result: JSON, contentKey key: String?) throws -> [T] {
-		let result: [JSON] = try validateRequestResult(result, contentKey: key)
-		
-		return try result.flatMap(T.init)
-	}
-	
-	//	Validates the request result by making sure it's a success and that the json has no errors
-	fileprivate func validateRequestResult(_ result: JSON, contentKey key: String?) throws -> [JSON] {
-		return try validateJson(result, contentKey: key)
-	}
-	
-	fileprivate func validateJson(_ json: JSON, contentKey key: String?) throws -> [JSON] {
-		let jsonContent: JSON = {
-			if let key = key, let content = json[key] {
-				return content
-			} else {
-				return json
-			}
-		}()
-		
-		guard let object = jsonContent.array else {
-			if let error = json[APIKey.error]?.string {
-				throw LIFXError.apiError(error)
-			} else {
-				throw LIFXError.invalidJson(json)
-			}
+		if unwrapResults {
+			let wrapper: ResultsWraper<T> = try performDecodableRequest(method: method, path: components, query: query, body: requestBody)
+			return wrapper.results
+		} else {
+			return try performDecodableRequest(method: method, path: components, query: query, body: requestBody)
 		}
-		return object
 	}
+	
+	
+}
+
+private struct ResultsWraper<T: Decodable>: Decodable {
+	let results: [T]
 }

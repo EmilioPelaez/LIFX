@@ -9,17 +9,8 @@
 import Foundation
 import JSON
 
-extension Color: JSONInitializable {
-	public init(json: JSON) throws {
-		self.hue = json["hue"]?.int ?? json["color", "hue"]?.int
-		self.saturation = json["saturation"]?.double ?? json["color", "saturation"]?.double
-		self.brightness = json["brightness"]?.double ?? json["color", "brightness"]?.double
-		self.kelvin = json["kelvin"]?.int ?? json["color", "kelvin"]?.int
-	}
-}
-
 extension Color {
-	init(string: String) throws {
+	static func from(string: String) throws -> Color {
 		guard !string.isEmpty else {
 			throw LIFXError.invalidParameter("Empty string")
 		}
@@ -34,8 +25,8 @@ extension Color {
 		guard let data = jsonString.data(using: .utf8) else {
 			throw LIFXError.invalidParameter("Empty string")
 		}
-		let json: JSON = try JSON(bytes: data.makeBytes())
-		try self.init(json: json)
+		let decoder = JSONDecoder()
+		return try decoder.decode(Color.self, from: data)
 	}
 }
 
@@ -60,5 +51,3 @@ extension Color: JSONRepresentable {
 		return json
 	}
 }
-
-extension Color: JSONConvertible { }

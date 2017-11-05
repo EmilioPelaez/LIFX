@@ -9,24 +9,6 @@
 import Foundation
 import JSON
 
-extension Bulb: JSONInitializable {
-	public init(json: JSON) throws {
-		guard let id = json["id"]?.string,
-			let name = json["label"]?.string,
-			let power = json["power"]?.string, (power == "on" || power == "off"),
-			let connected = json["connected"]?.bool
-			else {
-				throw LIFXError.invalidJson(json)
-		}
-		
-		self.id = id
-		self.name = name
-		self.powered = power == "on"
-		self.connected = connected
-		self.color = try Color(json: json)
-	}
-}
-
 extension Bulb: JSONRepresentable {
 	public func makeJSON() throws -> JSON {
 		var json = JSON()
@@ -42,5 +24,3 @@ extension Bulb: JSONRepresentable {
 		return json
 	}
 }
-
-extension Bulb: JSONConvertible {}

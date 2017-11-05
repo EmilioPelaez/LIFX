@@ -8,7 +8,7 @@
 
 import Foundation
 
-public struct Result {
+public struct Result: Decodable {
 	public let id: String
 	public let label: String
 	public let status: String
@@ -18,9 +18,9 @@ extension Result: CustomStringConvertible {
 	public var description: String { return "Result \(label): status \(status)" }
 }
 
-public struct OperationResult {
-	public let selectorString: String
-	public let state: State
+public struct OperationResult: Decodable {
+	public let selector: String?
+	public let operation: State
 	public let results: [Result]
 }
 

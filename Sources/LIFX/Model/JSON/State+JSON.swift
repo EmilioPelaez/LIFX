@@ -9,33 +9,18 @@
 import Foundation
 import JSON
 
-extension State: JSONInitializable {
-	public init(json: JSON) throws {
-		if let powerString = json["power"]?.string {
-			self.powered = powerString == "on"
-		} else {
-			self.powered = nil
-		}
-		if let color = try? Color(string: json["color"]?.string ?? "") {
-			self.color = color
-		} else {
-			self.color = nil
-		}
-		self.brightness = json["brightness"]?.double
-		self.duration = json["duration"]?.double
-	}
-}
-
 extension State: JSONRepresentable {
 	public func makeJSON() throws -> JSON {
 		var json = JSON()
 		
-		let values: [(String, Any?)] = [
-			("power", powerString),
+		var values: [(String, Any?)] = [
 			("color", try color?.makeJSON()),
 			("brightness", brightness),
 			("duration", duration)
 		]
+		if let powered = powered {
+			values.append(("power", powered ? "on" : "off"))
+		}
 		
 		try values.forEach {
 			guard let value = $0.1 else {
@@ -47,5 +32,3 @@ extension State: JSONRepresentable {
 		return json
 	}
 }
-
-extension State: JSONConvertible { }

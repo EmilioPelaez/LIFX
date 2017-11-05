@@ -8,13 +8,13 @@
 
 import Foundation
 
-public struct Color {
-	public var hue: Int?						{ didSet { validate() } }
+public struct Color: Decodable {
+	public var hue: Double?					{ didSet { validate() } }
 	public var saturation: Double?	{ didSet { validate() } }
 	public var brightness: Double?	{ didSet { validate() } }
-	public var kelvin: Int?				{ didSet { validate() } }
+	public var kelvin: Int?					{ didSet { validate() } }
 	
-	public init(hue: Int? = nil, saturation: Double? = nil, brightness: Double? = nil, kelvin: Int? = nil) {
+	public init(hue: Double? = nil, saturation: Double? = nil, brightness: Double? = nil, kelvin: Int? = nil) {
 		self.hue = hue
 		self.saturation = saturation
 		self.brightness = brightness
@@ -26,7 +26,7 @@ public struct Color {
 	private mutating func validate() {
 		if var hue = hue {
 			while hue < 0 { hue += 360 }
-			let target = hue % 360
+			let target = Double(Int(hue) % 360)
 			if hue != target { self.hue = target }
 		}
 		if let saturation = saturation {
