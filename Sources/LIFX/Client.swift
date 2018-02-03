@@ -63,29 +63,24 @@ open class Client: JSONClient {
 	}
 	
 	@discardableResult
-	open func pulse(selector: Selector = .all, color: Color, period: Double = 0.75, cycles: Double = 3, powerOn: Bool = false) throws -> [Result] {
-		let body: [String: Any] = [
-			APIKey.color: color.buildString(),
-			APIKey.period: period,
-			APIKey.cycles: cycles,
-			APIKey.powerOn: powerOn
-		]
-		
-		return try performAndHandleRequest(method: .post, path: [selector.string, "effects", "pulse"], body: body, unwrapResults: true)
+	open func pulse(selector: Selector = .all, color: Color, period: Double = 0.75, cycles: Int = 3, powerOn: Bool = false) throws -> [Result] {
+		let effect = Effect(color: color, period: period, cycles: cycles, powerOn: powerOn)
+		return try pulse(selector: selector, effect: effect)
 	}
 	
 	@discardableResult
-	open func breathe(selector: Selector = .all, color: Color, period: Double = 0.75, cycles: Double = 3, persist: Bool = false, powerOn: Bool = true, peak: Double = 0.5) throws -> [Result] {
-		let body: [String: Any] = [
-			APIKey.color: color.buildString(),
-			APIKey.period: period,
-			APIKey.cycles: cycles,
-			APIKey.persist: persist,
-			APIKey.powerOn: powerOn,
-			APIKey.peak: peak
-		]
-		
-		return try performAndHandleRequest(method: .post, path: [selector.string, "effects", "pulse"], body: body, unwrapResults: true)
+	open func pulse(selector: Selector = .all, effect: Effect) throws -> [Result] {
+		return try performAndHandleRequest(method: .post, path: [selector.string, "effects", "pulse"], body: effect, unwrapResults: true)
+	}
+	
+	@discardableResult
+	open func breathe(selector: Selector = .all, color: Color, period: Double = 0.75, cycles: Int = 3, persist: Bool = false, powerOn: Bool = true, peak: Double = 0.5) throws -> [Result] {
+		let effect = Effect(color: color, period: period, cycles: cycles, persist: persist, powerOn: powerOn, peak: peak)
+		return try breathe(selector: selector, effect: effect)
+	}
+	
+	open func breathe(selector: Selector = .all, effect: Effect) throws -> [Result] {
+		return try performAndHandleRequest(method: .post, path: [selector.string, "effects", "pulse"], body: effect, unwrapResults: true)
 	}
 }
 
