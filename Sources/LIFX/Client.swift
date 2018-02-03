@@ -33,12 +33,12 @@ open class Client: JSONClient {
 	@discardableResult
 	open func list(selector: Selector = .all) throws -> [Bulb] {
 		return []
-		//return try performAndHandleRequest(pathComponents: [selector.string], unwrapResults: false)
+		//return try performAndHandleRequest(path: [selector.string], unwrapResults: false)
 	}
 	
 	@discardableResult
 	open func setState(selector: Selector = .all, state: State) throws -> [Result] {
-		return try performAndHandleRequest(method: .put, pathComponents: [selector.string, "state"], body: state, unwrapResults: true)
+		return try performAndHandleRequest(method: .put, path: [selector.string, "state"], body: state, unwrapResults: true)
 	}
 	
 	@discardableResult
@@ -49,7 +49,7 @@ open class Client: JSONClient {
 	
 	@discardableResult
 	open func setStates(_ operation: Operation) throws -> [OperationResult] {
-		return try performAndHandleRequest(method: .put, pathComponents: ["states"], body: operation, unwrapResults: true)
+		return try performAndHandleRequest(method: .put, path: ["states"], body: operation, unwrapResults: true)
 	}
 	
 	@discardableResult
@@ -60,7 +60,7 @@ open class Client: JSONClient {
 	
 	@discardableResult
 	open func cycle(selector: Selector = .all, operation: Operation) throws -> [Result] {
-		return try performAndHandleRequest(method: .post, pathComponents: [selector.string, "cycle"], body: operation, unwrapResults: true)
+		return try performAndHandleRequest(method: .post, path: [selector.string, "cycle"], body: operation, unwrapResults: true)
 	}
 	
 	@discardableResult
@@ -72,7 +72,7 @@ open class Client: JSONClient {
 			APIKey.powerOn: powerOn
 		]
 		
-		return try performAndHandleRequest(method: .post, pathComponents: [selector.string, "effects", "pulse"], body: body, unwrapResults: true)
+		return try performAndHandleRequest(method: .post, path: [selector.string, "effects", "pulse"], body: body, unwrapResults: true)
 	}
 	
 	@discardableResult
@@ -86,13 +86,13 @@ open class Client: JSONClient {
 			APIKey.peak: peak
 		]
 		
-		return try performAndHandleRequest(method: .post, pathComponents: [selector.string, "effects", "pulse"], body: body, unwrapResults: true)
+		return try performAndHandleRequest(method: .post, path: [selector.string, "effects", "pulse"], body: body, unwrapResults: true)
 	}
 }
 
 extension Client {
 	@discardableResult
-	fileprivate func performAndHandleRequest<T: Decodable, D: Encodable>(method: HTTP.Method = .get, pathComponents components: [String], query: [String: CustomStringConvertible] = [:], body: D?, unwrapResults: Bool) throws -> [T] {
+	fileprivate func performAndHandleRequest<T: Decodable, D: Encodable>(method: HTTP.Method = .get, path components: [String], query: [String: CustomStringConvertible] = [:], body: D?, unwrapResults: Bool) throws -> [T] {
 		
 		let requestBody = try ContentBody(object: body)
 		
