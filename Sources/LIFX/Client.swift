@@ -79,13 +79,8 @@ open class Client: JSONClient {
 	
 	@discardableResult
 	open func pulse(selector: Selector = .all, color: Color, period: Double = 0.75, cycles: Double = 3, powerOn: Bool = false) throws -> [Result] {
-		return try pulse(selector: selector, colorString: color.string, period: period, cycles: cycles, powerOn: powerOn)
-	}
-	
-	@discardableResult
-	open func pulse(selector: Selector = .all, colorString: String, period: Double = 0.75, cycles: Double = 3, powerOn: Bool = false) throws -> [Result] {
 		let body: [String: Any] = [
-			APIKey.color: colorString,
+			APIKey.color: color.buildString(),
 			APIKey.period: period,
 			APIKey.cycles: cycles,
 			APIKey.powerOn: powerOn
@@ -96,13 +91,8 @@ open class Client: JSONClient {
 	
 	@discardableResult
 	open func breathe(selector: Selector = .all, color: Color, period: Double = 0.75, cycles: Double = 3, persist: Bool = false, powerOn: Bool = true, peak: Double = 0.5) throws -> [Result] {
-		return try breathe(selector: selector, colorString: color.string, period: period, cycles: cycles, persist: persist, powerOn: powerOn, peak: peak)
-	}
-	
-	@discardableResult
-	open func breathe(selector: Selector = .all, colorString: String, period: Double = 0.75, cycles: Double = 3, persist: Bool = false, powerOn: Bool = true, peak: Double = 0.5) throws -> [Result] {
 		let body: [String: Any] = [
-			APIKey.color: colorString,
+			APIKey.color: color.buildString(),
 			APIKey.period: period,
 			APIKey.cycles: cycles,
 			APIKey.persist: persist,

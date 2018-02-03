@@ -48,7 +48,7 @@ public struct State {
 		if let powered = powered {
 			values["power"] = powered ? "on" : "off"
 		}
-		if let color = color?.string {
+		if let color = color?.buildString() {
 			values["color"] = color
 		}
 		if let brightness = brightness {

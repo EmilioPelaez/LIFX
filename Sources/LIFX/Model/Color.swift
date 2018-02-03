@@ -9,10 +9,15 @@
 import Foundation
 
 public struct Color: Decodable {
+	private var string: String?
 	public var hue: Double?					{ didSet { validate() } }
 	public var saturation: Double?	{ didSet { validate() } }
 	public var brightness: Double?	{ didSet { validate() } }
 	public var kelvin: Int?					{ didSet { validate() } }
+	
+	public init(string: String) {
+		self.string = string
+	}
 	
 	public init(hue: Double? = nil, saturation: Double? = nil, brightness: Double? = nil, kelvin: Int? = nil) {
 		self.hue = hue
@@ -43,7 +48,10 @@ public struct Color: Decodable {
 		}
 	}
 	
-	var string: String {
+	internal func buildString() -> String {
+		if let string = string {
+			return string
+		}
 		var components = [String]()
 		if let hue = hue { components += ["hue:\(hue)"] }
 		if let saturation = saturation { components += [String(format:"saturation:%.1f", saturation)] }
@@ -55,5 +63,5 @@ public struct Color: Decodable {
 }
 
 extension Color: CustomStringConvertible {
-	public var description: String { return "Color " + string }
+	public var description: String { return "Color " + buildString() }
 }
