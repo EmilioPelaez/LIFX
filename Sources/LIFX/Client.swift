@@ -32,49 +32,35 @@ open class Client: JSONClient {
 	
 	@discardableResult
 	open func list(selector: Selector = .all) throws -> [Bulb] {
-		return try performAndHandleRequest(pathComponents: [selector.string], unwrapResults: false)
+		return []
+		//return try performAndHandleRequest(pathComponents: [selector.string], unwrapResults: false)
 	}
 	
 	@discardableResult
 	open func setState(selector: Selector = .all, state: State) throws -> [Result] {
-		guard let body = state.makeDictionary() as? [String: CustomStringConvertible] else {
-			fatalError("Invalid parameters \(state.makeDictionary())")
-		}
-		return try performAndHandleRequest(method: .put, pathComponents: [selector.string, "state"], body: body, unwrapResults: true)
+		return try performAndHandleRequest(method: .put, pathComponents: [selector.string, "state"], body: state, unwrapResults: true)
 	}
 	
 	@discardableResult
 	open func setStates(operations: [(selector: Selector, state: State)], defaults: State? = nil) throws -> [OperationResult] {
-		guard operations.count > 0 else {
-			throw LIFXError.invalidParameter("Empty operations array")
-		}
-		
-		let operationsBody: [[String: Any]] = operations.map { selector, state in
-			var dictionary = state.makeDictionary()
-			dictionary[APIKey.selector] = selector.string
-			return dictionary
-		}
-		var body: [String: Any] = [APIKey.states: operationsBody]
-		if let defaults = defaults {
-			body[APIKey.defaults] = defaults.makeDictionary()
-		}
-		
-		return try performAndHandleRequest(method: .put, pathComponents: ["states"], body: body, unwrapResults: true)
+		let operation = try Operation(operations: operations, defaults: defaults)
+		return try setStates(operation)
+	}
+	
+	@discardableResult
+	open func setStates(_ operation: Operation) throws -> [OperationResult] {
+		return try performAndHandleRequest(method: .put, pathComponents: ["states"], body: operation, unwrapResults: true)
 	}
 	
 	@discardableResult
 	open func cycle(selector: Selector = .all, states: [State], defaults: State? = nil) throws -> [Result] {
-		guard states.count > 0 else {
-			throw LIFXError.invalidParameter("Empty states array")
-		}
-		
-		let statesValues = states.map { $0.makeDictionary() }
-		var body: [String: Any] = [APIKey.states: statesValues]
-		if let defaults = defaults {
-			body[APIKey.defaults] = defaults.makeDictionary()
-		}
-		
-		return try performAndHandleRequest(method: .post, pathComponents: [selector.string, "cycle"], body: body, unwrapResults: true)
+		let operation = try Operation(states: states, defaults: defaults)
+		return try self.cycle(selector: selector, operation: operation)
+	}
+	
+	@discardableResult
+	open func cycle(selector: Selector = .all, operation: Operation) throws -> [Result] {
+		return try performAndHandleRequest(method: .post, pathComponents: [selector.string, "cycle"], body: operation, unwrapResults: true)
 	}
 	
 	@discardableResult
@@ -106,21 +92,9 @@ open class Client: JSONClient {
 
 extension Client {
 	@discardableResult
-	fileprivate func performAndHandleRequest<T: Decodable>(method: HTTP.Method = .get, pathComponents components: [String], query: [String: CustomStringConvertible] = [:], body: [String: Any]? = nil, unwrapResults: Bool) throws -> [T] {
+	fileprivate func performAndHandleRequest<T: Decodable, D: Encodable>(method: HTTP.Method = .get, pathComponents components: [String], query: [String: CustomStringConvertible] = [:], body: D?, unwrapResults: Bool) throws -> [T] {
 		
-		let requestBody: ContentBody = try {
-			if let body = body {
-				var json = JSON()
-				
-				try body.forEach { key, value in
-					try json.set(key, value)
-				}
-				
-				return ContentBody(json: json)
-			} else {
-				return .empty
-			}
-		}()
+		let requestBody = try ContentBody(object: body)
 		
 		if unwrapResults {
 			let wrapper: ResultsWraper<T> = try performDecodableRequest(method: method, path: components, query: query, body: requestBody)

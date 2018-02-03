@@ -31,6 +31,8 @@ public struct State {
 		}
 	}
 	
+	public var selector: Selector?
+	
 	public init(powered: Bool? = nil, color: Color? = nil, brightness: Double? = nil, duration: Double? = nil) {
 		self.powered = powered
 		self.color = color
@@ -41,25 +43,6 @@ public struct State {
 			self.duration = max(0, min(3155760000, duration))
 		}
 	}
-	
-	func makeDictionary() -> [String: Any] {
-		var values = [String: Any]()
-		
-		if let powered = powered {
-			values["power"] = powered ? "on" : "off"
-		}
-		if let color = color?.buildString() {
-			values["color"] = color
-		}
-		if let brightness = brightness {
-			values["brightness"] = brightness
-		}
-		if let duration = duration {
-			values["duration"] = duration
-		}
-		
-		return values
-	}
 }
 
 extension State {
@@ -68,6 +51,7 @@ extension State {
 		case color
 		case brightness
 		case duration
+		case selector
 	}
 }
 
@@ -80,6 +64,19 @@ extension State: Decodable {
 		self.color = try? values.decode(Color.self, forKey: .color)
 		self.brightness = try? values.decode(Double.self, forKey: .brightness)
 		self.duration = try? values.decode(Double.self, forKey: .duration)
+	}
+}
+
+extension State: Encodable {
+	public func encode(to encoder: Encoder) throws {
+		var container = encoder.container(keyedBy: CodingKeys.self)
+		if let powered = powered {
+			try container.encode(powered ? "on" : "off", forKey: .power)
+		}
+		try container.encodeIfPresent(color?.buildString(), forKey: .color)
+		try container.encodeIfPresent(brightness, forKey: .brightness)
+		try container.encodeIfPresent(duration, forKey: .duration)
+		try container.encodeIfPresent(selector?.string, forKey: .selector)
 	}
 }
 
