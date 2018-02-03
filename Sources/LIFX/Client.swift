@@ -32,8 +32,7 @@ open class Client: JSONClient {
 	
 	@discardableResult
 	open func list(selector: Selector = .all) throws -> [Bulb] {
-		return []
-		//return try performAndHandleRequest(path: [selector.string], unwrapResults: false)
+		return try performAndHandleRequest(path: [selector.string], unwrapResults: false)
 	}
 	
 	@discardableResult
@@ -92,18 +91,20 @@ open class Client: JSONClient {
 
 extension Client {
 	@discardableResult
-	fileprivate func performAndHandleRequest<T: Decodable, D: Encodable>(method: HTTP.Method = .get, path components: [String], query: [String: CustomStringConvertible] = [:], body: D?, unwrapResults: Bool) throws -> [T] {
-		
+	fileprivate func performAndHandleRequest<T: Decodable, D: Encodable>(method: HTTP.Method = .get, path components: [String], query: [String: CustomStringConvertible] = [:], body: D, unwrapResults: Bool) throws -> [T] {
 		let requestBody = try ContentBody(object: body)
-		
-		if unwrapResults {
-			let wrapper: ResultsWraper<T> = try performDecodableRequest(method: method, path: components, query: query, body: requestBody)
-			return wrapper.results
-		} else {
-			return try performDecodableRequest(method: method, path: components, query: query, body: requestBody)
-		}
+		return try performAndHandleRequest(method: method, path: components, query: query, body: requestBody, unwrapResults: unwrapResults)
 	}
 	
+	@discardableResult
+	fileprivate func performAndHandleRequest<T: Decodable>(method: HTTP.Method = .get, path components: [String], query: [String: CustomStringConvertible] = [:], body: ContentBody = .empty, unwrapResults: Bool) throws -> [T] {
+		if unwrapResults {
+			let wrapper: ResultsWraper<T> = try performDecodableRequest(method: method, path: components, query: query, body: body)
+			return wrapper.results
+		} else {
+			return try performDecodableRequest(method: method, path: components, query: query, body: body)
+		}
+	}
 	
 }
 
